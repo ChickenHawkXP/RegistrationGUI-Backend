@@ -26,14 +26,14 @@ cursor = database.cursor(buffered=True)
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(851, 430)
+        MainWindow.resize(1000, 410)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(680, 290, 151, 41))
+        self.pushButton.setGeometry(QtCore.QRect(770, 290, 201, 61))
         self.pushButton.setObjectName("pushButton")
         self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_2.setGeometry(QtCore.QRect(520, 290, 151, 41))
+        self.pushButton_2.setGeometry(QtCore.QRect(520, 290, 211, 61))
         self.pushButton_2.setObjectName("pushButton_2")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(20, 10, 111, 31))
@@ -57,7 +57,7 @@ class Ui_MainWindow(object):
         self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
-        self.label_4.setGeometry(QtCore.QRect(20, 300, 111, 31))
+        self.label_4.setGeometry(QtCore.QRect(350, 10, 111, 31))
         font = QtGui.QFont()
         font.setFamily("Comic Sans MS")
         font.setPointSize(16)
@@ -107,7 +107,7 @@ class Ui_MainWindow(object):
         self.email.setGeometry(QtCore.QRect(20, 250, 113, 20))
         self.email.setObjectName("email")
         self.dob = QtWidgets.QLineEdit(self.centralwidget)
-        self.dob.setGeometry(QtCore.QRect(20, 340, 113, 20))
+        self.dob.setGeometry(QtCore.QRect(350, 60, 113, 20))
         self.dob.setObjectName("dob")
         self.major = QtWidgets.QLineEdit(self.centralwidget)
         self.major.setGeometry(QtCore.QRect(200, 250, 113, 20))
@@ -121,18 +121,18 @@ class Ui_MainWindow(object):
         self.phone = QtWidgets.QLineEdit(self.centralwidget)
         self.phone.setGeometry(QtCore.QRect(350, 160, 113, 20))
         self.phone.setObjectName("phone")
-        self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_3.setGeometry(QtCore.QRect(210, 320, 221, 51))
+        self.searchbutton = QtWidgets.QPushButton(self.centralwidget)
+        self.searchbutton.setGeometry(QtCore.QRect(30, 300, 421, 71))
         font = QtGui.QFont()
         font.setFamily("Comic Sans MS")
         font.setPointSize(16)
-        self.pushButton_3.setFont(font)
-        self.pushButton_3.setObjectName("pushButton_3")
+        self.searchbutton.setFont(font)
+        self.searchbutton.setObjectName("searchbutton")
         self.lists = QtWidgets.QTableWidget(self.centralwidget)
-        self.lists.setGeometry(QtCore.QRect(510, 40, 331, 221))
+        self.lists.setGeometry(QtCore.QRect(510, 40, 461, 221))
         self.lists.setObjectName("QTableWidget")
-        self.lists.setRowCount(10)
-        self.lists.setColumnCount(10)
+        self.lists.setRowCount(8)
+        self.lists.setColumnCount(20)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 851, 21))
@@ -143,7 +143,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.pushButton_3.clicked.connect(self.search)
+        self.searchbutton.clicked.connect(self.search)
         '''
         self.name.textChanged.connect(self.search)
         self.lastname.textChanged.connect(self.search)
@@ -157,7 +157,7 @@ class Ui_MainWindow(object):
         self.pets.textChanged.connect(self.search)
         '''
 
-    def initDB(self,db):
+    def headers(self):
         self.lists.setItem(0,0,QTableWidgetItem("Name"))
         self.lists.setItem(0,1,QTableWidgetItem("Last Name"))
         self.lists.setItem(0,2,QTableWidgetItem("Date of Birth"))
@@ -167,6 +167,8 @@ class Ui_MainWindow(object):
         self.lists.setItem(0,6,QTableWidgetItem("Sex"))
         self.lists.setItem(0,7,QTableWidgetItem("Major"))
 
+    def initDB(self,db):
+        self.headers()
         db.execute("SELECT * FROM %s" %table)
         row = 0
         for i in db:
@@ -174,7 +176,7 @@ class Ui_MainWindow(object):
             col = 0
             for x in range(10):
                 self.lists.setItem(row,col,QTableWidgetItem(i[x]))
-                print(i[x])
+                #print(i[x])
                 col +=1
 
     def search(self):
@@ -214,7 +216,8 @@ class Ui_MainWindow(object):
                         AND `SEX` LIKE '%s%%'
                         AND `MAJOR` LIKE '%s%%'
                         """ %(table,name,lname,dob,email,address,phone,sex,major))
-        row = -1
+        row = 0
+        self.headers()
         try:
             for i in cursor:
                 row += 1
@@ -240,7 +243,7 @@ class Ui_MainWindow(object):
         self.label_6.setText(_translate("MainWindow", "Sex"))
         self.label_7.setText(_translate("MainWindow", "Major"))
         self.label_9.setText(_translate("MainWindow", "Phone"))
-        self.pushButton_3.setText(_translate("MainWindow", "Search"))
+        self.searchbutton.setText(_translate("MainWindow", "Search"))
 
 if __name__ == "__main__":
     import sys
