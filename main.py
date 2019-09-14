@@ -11,6 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout
 import mysql.connector
 import json
+
 table = 'information'
 with open("config.json","r") as json_read:
     data = json.load(json_read)
@@ -144,6 +145,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.searchbutton.clicked.connect(self.search)
+        self.pushButton.clicked.connect(self.send_all)
         '''
         self.name.textChanged.connect(self.search)
         self.lastname.textChanged.connect(self.search)
@@ -228,7 +230,9 @@ class Ui_MainWindow(object):
         except:
             pass
 
-        
+    def send_all(self):
+        from emailer import email
+        print("\nPlease wait while the emails get sent...\n")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -253,4 +257,5 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     ui.initDB(cursor)
     MainWindow.show()
+    
     sys.exit(app.exec_())
