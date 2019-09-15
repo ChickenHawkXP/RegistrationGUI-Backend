@@ -10,6 +10,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout
 import mysql.connector
+from emailer import email
 import json
 
 table = 'information'
@@ -132,7 +133,7 @@ class Ui_MainWindow(object):
         self.lists = QtWidgets.QTableWidget(self.centralwidget)
         self.lists.setGeometry(QtCore.QRect(510, 40, 461, 221))
         self.lists.setObjectName("QTableWidget")
-        self.lists.setRowCount(8)
+        self.lists.setRowCount(10)
         self.lists.setColumnCount(20)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -146,6 +147,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.searchbutton.clicked.connect(self.search)
         self.pushButton.clicked.connect(self.send_all)
+        self.pushButton_2.clicked.connect(self.email_selected)
         '''
         self.name.textChanged.connect(self.search)
         self.lastname.textChanged.connect(self.search)
@@ -176,10 +178,13 @@ class Ui_MainWindow(object):
         for i in db:
             row += 1
             col = 0
-            for x in range(10):
-                self.lists.setItem(row,col,QTableWidgetItem(i[x]))
-                #print(i[x])
-                col +=1
+            try:
+                for x in range(100):
+                    self.lists.setItem(row,col,QTableWidgetItem(i[x]))
+                    #print(i[x])
+                    col +=1
+            except:
+                pass
 
     def search(self):
         self.lists.clear()
@@ -229,10 +234,21 @@ class Ui_MainWindow(object):
                     col +=1
         except:
             pass
-
     def send_all(self):
-        from emailer import email
+        #cursor.execute('SELECT `EMAIL` FROM %s' %table)
+        #email.send(cursor)
         print("\nPlease wait while the emails get sent...\n")
+        mail_list = self.get_emails()
+        email.send(mail_list)
+        
+    
+    def email_selected(self):
+        emails = list()
+        emails.clear()
+        value = self.lists.currentRow()
+        get_email = self.lists.item(value,3).text()
+        emails.append(get_email)
+        email.send(emails)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -249,6 +265,20 @@ class Ui_MainWindow(object):
         self.label_9.setText(_translate("MainWindow", "Phone"))
         self.searchbutton.setText(_translate("MainWindow", "Search"))
 
+    def get_emails(self):
+        emails = list()
+        emails.clear()
+        cols = self.lists.rowCount()
+        row = 1
+        try:
+            for i in range(cols):
+                value = self.lists.item(row,3).text()
+                emails.append(value)
+                row += 1
+        except:
+            pass
+        return emails
+        
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -256,6 +286,7 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     ui.initDB(cursor)
+    ui.get_emails()
     MainWindow.show()
     
     sys.exit(app.exec_())
