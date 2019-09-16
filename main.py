@@ -185,6 +185,7 @@ class Ui_MainWindow(object):
         row = 0
         self.initRows()
         self.headers()
+        cols = self.lists.columnCount()
         cursor.execute("SELECT * FROM %s" %table)
         rowcount = self.lists.rowCount()
         print(rowcount)
@@ -192,7 +193,7 @@ class Ui_MainWindow(object):
             row += 1
             col = 0
             try:
-                for x in range(rowcount):
+                for x in range(cols):
                     self.lists.setItem(row,col,QTableWidgetItem(i[x]))
                     #print(i[x])
                     col +=1
@@ -225,6 +226,8 @@ class Ui_MainWindow(object):
 
     def search(self):
         self.lists.clear()
+        cols = self.lists.columnCount()
+        totalrows = self.get_db_rows
         name = self.name.text()
         lname = self.lastname.text()
         email = self.email.text()
@@ -266,7 +269,7 @@ class Ui_MainWindow(object):
             for i in cursor:
                 row += 1
                 col = 0
-                for x in range(10):
+                for x in range(cols):
                     self.lists.setItem(row,col,QTableWidgetItem(i[x]))
                     col +=1
         except:
