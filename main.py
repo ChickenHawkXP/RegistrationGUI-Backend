@@ -37,6 +37,9 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_2.setGeometry(QtCore.QRect(520, 290, 211, 61))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.refresh = QtWidgets.QPushButton(self.centralwidget)
+        self.refresh.setGeometry(QtCore.QRect(510,10,75,23))
+        self.refresh.setObjectName('refresh')
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(20, 10, 111, 31))
         font = QtGui.QFont()
@@ -133,8 +136,7 @@ class Ui_MainWindow(object):
         self.lists = QtWidgets.QTableWidget(self.centralwidget)
         self.lists.setGeometry(QtCore.QRect(510, 40, 461, 221))
         self.lists.setObjectName("QTableWidget")
-        self.lists.setRowCount(10)
-        self.lists.setColumnCount(20)
+        self.lists.setColumnCount(8)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 851, 21))
@@ -148,6 +150,7 @@ class Ui_MainWindow(object):
         self.searchbutton.clicked.connect(self.search)
         self.pushButton.clicked.connect(self.send_all)
         self.pushButton_2.clicked.connect(self.email_selected)
+        self.refresh.clicked.connect(self.refreshDB)
         '''
         self.name.textChanged.connect(self.search)
         self.lastname.textChanged.connect(self.search)
@@ -171,20 +174,54 @@ class Ui_MainWindow(object):
         self.lists.setItem(0,6,QTableWidgetItem("Sex"))
         self.lists.setItem(0,7,QTableWidgetItem("Major"))
 
-    def initDB(self,db):
-        self.headers()
-        db.execute("SELECT * FROM %s" %table)
+    def initRows(self):
+        rowcount = 1
+        cursor.execute("SELECT * FROM %s" %table)
+        for i in cursor:
+            rowcount+=1
+        self.lists.setRowCount(rowcount)
+    
+    def initDB(self):
         row = 0
-        for i in db:
+        self.initRows()
+        self.headers()
+        cursor.execute("SELECT * FROM %s" %table)
+        rowcount = self.lists.rowCount()
+        print(rowcount)
+        for i in cursor:
             row += 1
             col = 0
             try:
-                for x in range(100):
+                for x in range(rowcount):
                     self.lists.setItem(row,col,QTableWidgetItem(i[x]))
                     #print(i[x])
                     col +=1
             except:
                 pass
+        return rowcount
+
+    def get_db_rows(self):
+        database.commit()
+        cursor.execute('SELECT * FROM %s' %table)
+        rows = 0
+        for i in cursor:
+            rows += 1
+        print(rows)
+        return rows
+
+    def refreshDB(self):
+        row = 0
+        self.lists.clear()
+        self.headers()
+        dbrow = self.get_db_rows()
+        print(dbrow)
+        rows = self.lists.rowCount()-1
+        cols = self.lists.columnCount()
+        cursor.execute('SELECT * FROM %s'%table)
+        dif = abs(dbrow - rows)
+        if dbrow > rows:
+            self.lists.insertRow(rows)
+        self.initDB()
 
     def search(self):
         self.lists.clear()
@@ -197,21 +234,21 @@ class Ui_MainWindow(object):
         address = self.address.text()
         phone = self.phone.text()
 
-        if name == "":
+        if name == "" or name == "'":
             name = '%%%%'
-        if lname == "":
+        if lname == "" or lname == "'":
             lname = '%%%%'
-        if email == "":
+        if email == "" or email == "'":
             email = '%%%%'
-        if dob == "":
+        if dob == "" or dob == "'":
             dob = '%%%%'
-        if major == "":
+        if major == "" or major == "'":
             major = '%%%%'
-        if sex == "":
+        if sex == "" or sex == "'":
             sex = '%%%%'
-        if address == "":
+        if address == "" or address == "'":
             address = '%%%%'
-        if phone == "":
+        if phone == "" or phone == "'":
             phone = '%%%%'
         cursor.execute("""SELECT * FROM %s
                         WHERE `FNAME` LIKE '%s%%'
@@ -245,8 +282,12 @@ class Ui_MainWindow(object):
     def email_selected(self):
         emails = list()
         emails.clear()
-        value = self.lists.currentRow()
-        get_email = self.lists.item(value,3).text()
+        try:
+            value = self.lists.currentRow()
+            get_email = self.lists.item(value,3).text()
+        except:
+            print('No row with data has been selected!')
+            return
         emails.append(get_email)
         email.send(emails)
 
@@ -264,6 +305,7 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "Major"))
         self.label_9.setText(_translate("MainWindow", "Phone"))
         self.searchbutton.setText(_translate("MainWindow", "Search"))
+        self.refresh.setText(_translate("MainWindow", "Refresh DB"))
 
     def get_emails(self):
         emails = list()
@@ -285,7 +327,8 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    ui.initDB(cursor)
+    ui.initRows()
+    ui.initDB()
     ui.get_emails()
     MainWindow.show()
     
