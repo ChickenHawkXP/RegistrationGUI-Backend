@@ -8,7 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QInputDialog,QLineEdit
 import mysql.connector
 from emailer import email
 import json
@@ -25,7 +25,7 @@ try:
 except:
     print('Could not make connection with database!')
 cursor = database.cursor(buffered=True)
-class Ui_MainWindow(object):
+class Ui_MainWindow(QWidget,object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1000, 410)
@@ -151,6 +151,7 @@ class Ui_MainWindow(object):
         self.pushButton.clicked.connect(self.send_all)
         self.pushButton_2.clicked.connect(self.email_selected)
         self.refresh.clicked.connect(self.refreshDB)
+        self.lists.cellDoubleClicked.connect(self.change_cell)
         '''
         self.name.textChanged.connect(self.search)
         self.lastname.textChanged.connect(self.search)
@@ -274,14 +275,45 @@ class Ui_MainWindow(object):
                     col +=1
         except:
             pass
+
     def send_all(self):
         #cursor.execute('SELECT `EMAIL` FROM %s' %table)
         #email.send(cursor)
         print("\nPlease wait while the emails get sent...\n")
         mail_list = self.get_emails()
         email.send(mail_list)
-        
-    
+     
+    def update_db(self):
+        row = self.lists.currentRow()
+        totalcols = self.lists.columnCount()
+        fname = self.lists.item(row,0).text()
+        lname = self.lists.item(row,1).text()
+        dob = self.lists.item(row,2).text()
+        email = self.lists.item(row,3).text()
+        address = self.lists.item(row,4).text()
+        phone = self.lists.item(row,5).text()
+        sex = self.lists.item(row,6).text()
+        major = self.lists.item(row,7).text()
+        cursor.execute("""UPDATE `%s`
+                          SET 
+                          `FNAME` = '%s',
+                          `LNAME` = '%s',
+                          `DOB` = '%s',
+                          `EMAIL` = '%s',
+                          `ADDRESS` = '%s',
+                          `PHONE` = '%s',
+                          `SEX` = '%s',
+                          `MAJOR` = '%s'
+                          WHERE
+                          `EMAIL` = '%s'""" %(table,fname,lname,dob,email,address,phone,sex,major,email))
+        database.commit()
+    def change_cell(self):
+        row = self.lists.currentRow()
+        col = self.lists.currentColumn()
+        text, okPressed = QInputDialog.getText(self,'Change cell','What would you like to change this too?: ',QLineEdit.Normal,"")
+        if text != '' and okPressed:
+            self.lists.setItem(row,col,QTableWidgetItem(text))
+        self.update_db()
     def email_selected(self):
         emails = list()
         emails.clear()
