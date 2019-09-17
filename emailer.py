@@ -10,8 +10,7 @@ class email():
         password = ""
         option = webdriver.ChromeOptions()
         option.add_argument('headless')
-        option.add_argument('window-size=1200x600')
-        driver = webdriver.Chrome(chrome_options=option)
+        driver = webdriver.Chrome(executable_path='/Driver/chromedriver',options = option)
         driver.get("https://gmail.com")
         driver.implicitly_wait(5)
         search = driver.find_element_by_xpath("//input[@type='email']")
@@ -41,4 +40,5 @@ class email():
             time.sleep(3)
             emails_sent += 1
             print('%d out of %d emails sent...' %(emails_sent,total))
+        driver.close()
         print("Finished sending emails!")

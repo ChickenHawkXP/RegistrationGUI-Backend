@@ -12,9 +12,20 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableW
 import mysql.connector
 from emailer import email
 import json
+import os
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 table = 'information'
-with open("config.json","r") as json_read:
+with open(resource_path("config.json"),"r") as json_read:
     data = json.load(json_read)
 try:
     database = mysql.connector.connect(host = data['host'],
