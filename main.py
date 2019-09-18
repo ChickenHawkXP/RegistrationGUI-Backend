@@ -8,9 +8,10 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QInputDialog,QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QInputDialog,QLineEdit,QMessageBox
 import mysql.connector
 from emailer import email
+import time
 import json
 import os
 
@@ -290,10 +291,14 @@ class Ui_MainWindow(QWidget,object):
     def send_all(self):
         #cursor.execute('SELECT `EMAIL` FROM %s' %table)
         #email.send(cursor)
+        popup = QMessageBox()
         print("\nPlease wait while the emails get sent...\n")
         mail_list = self.get_emails()
+        popup.setText("Click OK to send start sending emails...")
+        popup.exec()
         email.send(mail_list)
-     
+        popup.setText("Emails have finished sending!...")
+        popup.exec()
     def update_db(self):
         row = self.lists.currentRow()
         totalcols = self.lists.columnCount()
@@ -326,6 +331,7 @@ class Ui_MainWindow(QWidget,object):
             self.lists.setItem(row,col,QTableWidgetItem(text))
         self.update_db()
     def email_selected(self):
+        popup = QMessageBox()
         emails = list()
         emails.clear()
         try:
@@ -335,8 +341,11 @@ class Ui_MainWindow(QWidget,object):
             print('No row with data has been selected!')
             return
         emails.append(get_email)
+        popup.setText("Click OK to send start sending emails...")
+        popup.exec()
         email.send(emails)
-
+        popup.setText("Emails have finished sending!")
+        popup.exec()
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
